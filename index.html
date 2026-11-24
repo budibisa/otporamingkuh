@@ -38,14 +38,17 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:0}
 .waves path{fill:none;stroke:currentColor;stroke-width:1}
 .waves{width:82%;height:var(--band)}
 .waves.tr{top:0;right:0;-webkit-mask-image:linear-gradient(to left,#000 45%,transparent);mask-image:linear-gradient(to left,#000 45%,transparent)}
-.waves.bl{bottom:0;left:0;transform:rotate(180deg);-webkit-mask-image:linear-gradient(to left,#000 45%,transparent);mask-image:linear-gradient(to left,#000 45%,transparent)}
+.waves.bl{bottom:0;left:0;width:100%;height:var(--band-b);transform:rotate(180deg);-webkit-mask-image:linear-gradient(to left,#000 45%,transparent);mask-image:linear-gradient(to left,#000 45%,transparent)}
 .waves path{stroke-dasharray:900;stroke-dashoffset:900;animation:draw 4s ease forwards}
 @keyframes draw{to{stroke-dashoffset:0}}
 
+/* page content stays hidden until the invitation is opened */
+body:not(.opened) main,body:not(.opened) footer{visibility:hidden}
+
 /* ===== COVER ===== */
-#cover{position:fixed;inset:0;height:100vh;height:100dvh;z-index:30;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:space-evenly;
-  --band:clamp(56px,11vh,96px);
-  padding:calc(var(--band) + 1vh + env(safe-area-inset-top)) 16px calc(var(--band) + 1vh + env(safe-area-inset-bottom));text-align:center;
+#cover{position:fixed;top:0;left:0;right:0;height:100vh;height:100lvh;min-height:100%;z-index:30;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:space-evenly;
+  --band:clamp(56px,11vh,96px);--band-b:clamp(90px,17vh,160px);
+  padding:calc(var(--band) + 1vh + env(safe-area-inset-top)) 16px calc(var(--band-b) + 1vh + env(safe-area-inset-bottom));text-align:center;
   background:radial-gradient(ellipse 120% 80% at 50% 30%,#152454 0%,#0a1128 50%,#05060b 100%);
   transition:transform 1.2s cubic-bezier(.75,0,.2,1)}
 #cover.open{transform:translateY(-105%)}
@@ -80,7 +83,6 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:0}
 #cover .guest{margin:10px 0 8px}
 #cover .invited{margin-top:16px}
 #cover .medal{margin-top:0}
-.tap{margin-top:14px;font-size:11px;letter-spacing:.35em;color:var(--gold2);font-weight:600;animation:blink 2s ease-in-out infinite}
 @keyframes blink{50%{opacity:.45}}
 
 /* ===== MAIN ===== */
@@ -191,7 +193,7 @@ footer .logos .l1{width:56px} footer .logos .l2{width:74px} footer .logos .l3{wi
 #cover .medal{width:min(112px,12vh);height:min(112px,12vh)}
 #cover .medal .disc span{width:72%;height:72%;font-size:min(13px,1.5vh);letter-spacing:.04em}
 @media (max-height:720px){
-  #cover{--band:clamp(44px,8vh,58px)}
+  #cover{--band:clamp(44px,8vh,58px);--band-b:clamp(70px,13vh,96px)}
   #cover .flourish{display:none}
   #cover .guest{margin:6px 0 6px}
   #cover .invited{margin-top:10px}
@@ -230,7 +232,6 @@ footer .logos .l1{width:56px} footer .logos .l2{width:74px} footer .logos .l3{wi
       <i class="ring"></i><i class="ring"></i>
       <i class="disc"><span>OPEN</span></i>
     </button>
-    <div class="tap">TAP TO OPEN</div>
   </div>
 </div>
 
@@ -465,6 +466,7 @@ $("music").onclick = () => { if (!audio) return; audio.paused ? audio.play() : a
 // open cover
 document.documentElement.style.overflow = "hidden";
 $("openBtn").onclick = () => {
+  document.body.classList.add("opened");
   $("cover").classList.add("open");
   document.documentElement.style.overflow = "";
   setTimeout(() => $("cover").style.display = "none", 1300);
