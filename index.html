@@ -131,10 +131,15 @@ p.lead{color:var(--muted);line-height:1.8;font-size:15px}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 24px;border-radius:999px;border:1px solid var(--gold);
   background:rgba(214,177,106,.08);color:var(--gold2);font:600 13px Montserrat,sans-serif;letter-spacing:.1em;text-transform:uppercase;
   cursor:pointer;text-decoration:none;transition:.25s}
-.btn:hover{background:var(--gold);color:var(--black)}
+@media (hover:hover){.btn:hover{background:var(--gold);color:var(--black)}}
 .btn.solid{background:linear-gradient(180deg,var(--gold2),var(--gold));color:var(--black);border-color:var(--gold2)}
-.btn.solid:hover{box-shadow:0 0 30px rgba(214,177,106,.5)}
+@media (hover:hover){.btn.solid:hover{box-shadow:0 0 30px rgba(214,177,106,.5)}}
+.btn:active{background:var(--gold);color:var(--black)}
 .actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:20px}
+.actions.row3{flex-wrap:nowrap;gap:8px}
+.actions.row3 .btn{flex:1 1 0;min-width:0;flex-direction:column;gap:6px;padding:12px 6px;border-radius:16px;
+  font-size:clamp(9.5px,2.7vw,11.5px);letter-spacing:.06em;line-height:1.25;text-align:center}
+.actions.row3 .btn svg{width:20px;height:20px;flex:none}
 
 /* rundown as race route */
 .route{text-align:left;position:relative;padding-left:34px}
@@ -279,10 +284,10 @@ footer .logos .l1{width:56px} footer .logos .l2{width:74px} footer .logos .l3{wi
       <div class="row"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 3l4 3 4-3 5 3-2 5-3-1v11H8V10l-3 1-2-5z"/></svg></div>
         <div><div class="k">Dress Code</div><b id="dress"></b><span>White &amp; Cream <span class="swatch"><i style="background:#fbfaf5"></i><i style="background:#efe3c8"></i></span></span></div></div>
     </div>
-    <div class="actions">
-      <a class="btn" id="mapBtn" target="_blank" rel="noopener">Open Map</a>
-      <a class="btn" id="gcalBtn" target="_blank" rel="noopener">Google Calendar</a>
-      <button class="btn" id="icsBtn">Save Date</button>
+    <div class="actions row3">
+      <a class="btn" id="mapBtn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Open Map</a>
+      <a class="btn" id="gcalBtn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Google Calendar</a>
+      <button class="btn" id="icsBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Save Date</button>
     </div>
   </section>
 
@@ -311,7 +316,7 @@ footer .logos .l1{width:56px} footer .logos .l2{width:74px} footer .logos .l3{wi
     <svg class="flourish" viewBox="0 0 120 24" aria-hidden="true"><path d="M2 12c18 0 22-9 34-9s14 18 24 18 12-18 24-18 16 9 34 9" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
     <div class="cinzel" style="letter-spacing:.2em;color:var(--gold2)">SEE YOU AT THE FINISH LINE,</div>
     <div class="guest cinzel goldtext" id="guestEnd">Rangers</div>
-    <div class="tagline script" style="margin-top:10px">Ora Mingkuh!</div>
+    <div class="tagline script" style="margin-top:12px;line-height:1.25">OTP Ora Mingkuh,<br>Ora Ngeluh, Mesti Pengkuh</div>
   </section>
 
   <!-- Generator link: buka dengan ?admin=1 -->
