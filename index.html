@@ -268,13 +268,7 @@ footer .logos .l1{width:56px} footer .logos .l2{width:74px} footer .logos .l3{wi
     <h2 class="goldtext">Are You Coming?</h2>
     <p class="lead">Konfirmasi kehadiran Anda agar kami bisa menyiapkan tempat terbaik.</p>
     <div class="card" style="margin-top:20px">
-      <div class="k eyebrow" style="font-size:10px">Membawa pendamping?</div>
-      <div class="guests">
-        <button id="minus" aria-label="Kurangi">−</button>
-        <output id="plus">+0</output>
-        <button id="add" aria-label="Tambah">+</button>
-      </div>
-      <div class="note" id="maxNote"></div>
+      <div class="note">Undangan ini berlaku untuk 1 orang sesuai nama.</div>
       <div class="actions">
         <a class="btn solid" id="yes" target="_blank" rel="noopener">I'm in! 🏃</a>
         <a class="btn" id="no" target="_blank" rel="noopener">Can't make it</a>
@@ -349,7 +343,6 @@ const CONFIG = {
     ["18.55 – 19.15", "20 MENIT", "Closing & Group Photo", "Ora Mingkuh!"]
   ],
   marquee: ["Graduation Ceremony", "OTP Ora Mingkuh 2026", "29.11.2026", "Gaia Cosmo Hotel", "The Hearts Behind Every Journey"],
-  maxGuests: 2,
   rsvpName: "Budi S",
   rsvpPhone: "08121555154",
   music: "assets/ora-mingkuh-theme.mp3"   // musik instrumental orisinal; ganti dengan file .mp3 lain bila perlu
@@ -409,19 +402,13 @@ function tick() {
 tick(); setInterval(tick, 1000);
 
 // RSVP
-let plus = 0;
-$("maxNote").textContent = `Maksimal ${CONFIG.maxGuests} orang pendamping`;
 $("rsvpName").textContent = CONFIG.rsvpName;
 $("rsvpPhone").textContent = CONFIG.rsvpPhone;
 $("rsvpPhone").href = `https://wa.me/${waNum}`;
 function updRsvp() {
-  $("plus").textContent = "+" + plus;
-  const extra = plus ? ` bersama ${plus} orang pendamping` : "";
-  $("yes").href = `https://wa.me/${waNum}?text=${encodeURIComponent(`Halo ${CONFIG.rsvpName}, saya ${guest} akan HADIR${extra} di ${evTitle} (29 Nov 2026, ${CONFIG.venue}). Ora Mingkuh! 🏃`)}`;
+  $("yes").href = `https://wa.me/${waNum}?text=${encodeURIComponent(`Halo ${CONFIG.rsvpName}, saya ${guest} akan HADIR di ${evTitle} (29 Nov 2026, ${CONFIG.venue}). Ora Mingkuh! 🏃`)}`;
   $("no").href  = `https://wa.me/${waNum}?text=${encodeURIComponent(`Halo ${CONFIG.rsvpName}, saya ${guest} mohon maaf BERHALANGAN hadir di ${evTitle}. Selamat untuk semua Rangers!`)}`;
 }
-$("add").onclick = () => { plus = Math.min(CONFIG.maxGuests, plus + 1); updRsvp(); };
-$("minus").onclick = () => { plus = Math.max(0, plus - 1); updRsvp(); };
 ["yes", "no"].forEach(id => $(id).addEventListener("click", () => $("done").style.display = "block"));
 updRsvp();
 
