@@ -164,6 +164,31 @@ p.lead{color:var(--muted);line-height:1.8;font-size:15px}
 .guests output{font:700 28px Cinzel,serif;min-width:40px}
 .note{font-size:12px;color:var(--muted)}
 .rsvp-done{display:none;margin-top:18px;color:var(--gold2);font-size:14px}
+.btn.chosen{box-shadow:0 0 0 2px var(--gold2),0 0 24px rgba(214,177,106,.45)}
+
+/* roster */
+.tally{display:flex;justify-content:center;gap:6px;margin:-4px 0 18px;flex-wrap:wrap}
+.tally span{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:5px 10px;white-space:nowrap}
+.tally b{color:var(--gold2);font-weight:700}
+.roster{text-align:left;display:grid;gap:22px}
+.grp[hidden]{display:none}
+.gh{display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:12px}
+.gh b{margin-left:auto;font:700 16px Cinzel,serif;color:var(--gold2);letter-spacing:0}
+.dot{width:8px;height:8px;border-radius:50%}
+.dot.yes{background:var(--gold);box-shadow:0 0 10px var(--gold)}
+.dot.no{background:#6b7189}
+.dot.pending{border:1px dashed var(--gold)}
+.bubbles{display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:14px 8px}
+.bub{display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:0;color:inherit;cursor:pointer;font:inherit;padding:0}
+.bub i{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;font:700 15px Cinzel,serif;font-style:normal;letter-spacing:.02em;position:relative;transition:transform .2s}
+.bub.yes i{background:linear-gradient(160deg,var(--gold2),var(--gold) 55%,var(--gold3));color:var(--black);box-shadow:0 4px 18px rgba(214,177,106,.35)}
+.bub.no i{background:rgba(255,255,255,.04);border:1px solid rgba(167,173,192,.35);color:#8a90a6}
+.bub.pending i{border:1px dashed var(--line);color:var(--gold);background:rgba(214,177,106,.04)}
+.bub.me i:after{content:"";position:absolute;inset:-5px;border-radius:50%;border:1px solid var(--gold2)}
+.bub small{font-size:10px;color:var(--muted);max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center}
+.bub.open small{white-space:normal;color:var(--ink)}
+.bub.pop i{animation:pop .6s ease}
+@keyframes pop{40%{transform:scale(1.18)}}
 
 /* closing */
 .closing .guest{font-size:clamp(26px,8vw,40px)}
@@ -313,6 +338,18 @@ footer .logos .l1{width:56px} footer .logos .l2{width:74px} footer .logos .l3{wi
     </div>
   </section>
 
+  <section class="wrap reveal" id="rosterWrap" hidden>
+    <div class="eyebrow">Start List</div>
+    <h2 class="goldtext">Rangers Check-in</h2>
+    <div class="tally" id="tally"></div>
+    <div class="card roster">
+      <div class="grp" data-g="yes"><div class="gh"><span class="dot yes"></span>Hadir <b id="n-yes">0</b></div><div class="bubbles" id="g-yes"></div></div>
+      <div class="grp" data-g="no"><div class="gh"><span class="dot no"></span>Berhalangan <b id="n-no">0</b></div><div class="bubbles" id="g-no"></div></div>
+      <div class="grp" data-g="pending"><div class="gh"><span class="dot pending"></span>Belum konfirmasi <b id="n-pending">0</b></div><div class="bubbles" id="g-pending"></div></div>
+    </div>
+    <p class="note" style="margin-top:12px">Ketuk lingkaran untuk melihat nama. Daftar diperbarui otomatis.</p>
+  </section>
+
   <section class="wrap reveal closing">
     <svg class="flourish" viewBox="0 0 120 24" aria-hidden="true"><path d="M2 12c18 0 22-9 34-9s14 18 24 18 12-18 24-18 16 9 34 9" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
     <div class="cinzel" style="letter-spacing:.2em;color:var(--gold2)">SEE YOU AT THE FINISH LINE,</div>
@@ -446,6 +483,71 @@ function updRsvp() {
 }
 ["yes", "no"].forEach(id => $(id).addEventListener("click", () => $("done").style.display = "block"));
 updRsvp();
+
+// ===== Roster: who's coming (needs /api/rsvp + storage on Vercel) =====
+const API = "/api/rsvp";
+const STORE = "otp-rsvp-choice";
+const initials = n => {
+  const w = n.split(/\s+/).filter(x => /^[A-Za-zÀ-ÿ]/.test(x) && !/\./.test(x));
+  return ((w[0] || "")[0] + (w.length > 1 ? w[1][0] : (w[0] || "")[1] || "")).toUpperCase();
+};
+const firstName = n => n.split(/\s+/)[0];
+let roster = null, lastMine = null;
+try { lastMine = localStorage.getItem(STORE + ":" + nm); } catch (e) {}
+
+function renderRoster(guests) {
+  roster = guests;
+  const groups = {yes: [], no: [], pending: []};
+  guests.forEach(g => groups[g.status || "pending"].push(g));
+  for (const k of Object.keys(groups)) {
+    $("n-" + k).textContent = groups[k].length;
+    $("g-" + k).innerHTML = groups[k].map(g => {
+      const me = nm && g.name.toLowerCase() === nm.toLowerCase();
+      return `<button class="bub ${k}${me ? " me" : ""}" title="${esc(g.name)} · ${esc(g.role)}" aria-label="${esc(g.name)}, ${esc(g.role)}"><i>${esc(initials(g.name))}</i><small>${esc(firstName(g.name))}</small></button>`;
+    }).join("");
+    document.querySelector(`.grp[data-g="${k}"]`).hidden = !groups[k].length;
+  }
+  $("tally").innerHTML = `<span><b>${groups.yes.length}</b> hadir</span><span><b>${groups.no.length}</b> berhalangan</span><span><b>${guests.length}</b> diundang</span>`;
+  $("rosterWrap").hidden = false;
+  if (!$("rosterWrap").classList.contains("in")) io.observe($("rosterWrap"));
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest(".bub"); if (!b) return;
+  const wasOpen = b.classList.contains("open");
+  document.querySelectorAll(".bub.open").forEach(x => { x.classList.remove("open"); x.querySelector("small").textContent = firstName(x.title.split(" · ")[0]); });
+  if (!wasOpen) { b.classList.add("open"); b.querySelector("small").textContent = b.title.split(" · ")[0]; }
+});
+
+async function loadRoster() {
+  try {
+    const r = await fetch(API, {cache: "no-store"});
+    const j = await r.json();
+    if (j.ok && Array.isArray(j.guests)) renderRoster(j.guests);
+  } catch (e) { /* API not available (e.g. opened as a local file): keep roster hidden */ }
+}
+function markChoice(status) {
+  ["yes", "no"].forEach(id => $(id).classList.toggle("chosen", id === status));
+}
+async function sendRsvp(status) {
+  markChoice(status);
+  try { localStorage.setItem(STORE + ":" + nm, status); } catch (e) {}
+  if (roster) {
+    renderRoster(roster.map(g => g.name.toLowerCase() === nm.toLowerCase() ? {...g, status} : g));
+    const mine = document.querySelector(".bub.me"); if (mine) mine.classList.add("pop");
+  }
+  try {
+    const r = await fetch(API, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({name: nm, status}), keepalive: true});
+    const j = await r.json();
+    if (j.ok) renderRoster(j.guests);
+  } catch (e) {}
+}
+if (nm) {
+  $("yes").addEventListener("click", () => sendRsvp("yes"));
+  $("no").addEventListener("click", () => sendRsvp("no"));
+  if (lastMine) markChoice(lastMine);
+}
+loadRoster();
+setInterval(() => { if (!document.hidden) loadRoster(); }, 30000);
 
 // wave lines
 (() => {
