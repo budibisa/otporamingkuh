@@ -2,6 +2,10 @@
 // Storage: Upstash Redis via its REST API. Add it in Vercel → Project → Storage
 // (Upstash for Redis); Vercel then sets KV_REST_API_URL / KV_REST_API_TOKEN
 // (or UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN) automatically.
+// Reading the list (GET) needs the admin PIN: set ADMIN_PIN in Vercel →
+// Project → Settings → Environment Variables. Guests can only POST their answer.
+
+const crypto = require("crypto");
 
 const GUESTS = [
   ["Robertus Indra", "Penanggung Jawab"],
@@ -33,6 +37,14 @@ const byName = new Map(GUESTS.map(([n, r]) => [norm(n), { name: n, role: r }]));
 
 const URL_ = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
 const TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+const ADMIN_PIN = process.env.ADMIN_PIN || "";
+
+function pinOk(given) {
+  if (!ADMIN_PIN) return false;
+  const a = crypto.createHash("sha256").update(String(given || "")).digest();
+  const b = crypto.createHash("sha256").update(ADMIN_PIN).digest();
+  return crypto.timingSafeEqual(a, b);
+}
 
 async function redis(cmd) {
   const r = await fetch(URL_, {
@@ -55,11 +67,18 @@ async function readAll() {
 
 module.exports = async (req, res) => {
   res.setHeader("Cache-Control", "no-store");
-  if (!URL_ || !TOKEN) {
-    return res.status(503).json({ ok: false, error: "storage_not_configured", guests: GUESTS.map(([name, role]) => ({ name, role })) });
+  const isGet = req.method === "GET";
+  if (!isGet && req.method !== "POST") {
+    res.setHeader("Allow", "GET, POST");
+    return res.status(405).json({ ok: false, error: "method_not_allowed" });
   }
+  if (isGet) {
+    if (!ADMIN_PIN) return res.status(503).json({ ok: false, error: "admin_pin_not_configured" });
+    if (!pinOk(req.headers["x-admin-pin"])) return res.status(401).json({ ok: false, error: "wrong_pin" });
+  }
+  if (!URL_ || !TOKEN) return res.status(503).json({ ok: false, error: "storage_not_configured" });
   try {
-    if (req.method === "POST") {
+    if (!isGet) {
       let body = req.body;
       if (typeof body === "string") { try { body = JSON.parse(body); } catch { body = {}; } }
       const g = byName.get(norm(body && body.name));
@@ -67,12 +86,10 @@ module.exports = async (req, res) => {
       if (!g) return res.status(400).json({ ok: false, error: "unknown_guest" });
       if (status !== "yes" && status !== "no") return res.status(400).json({ ok: false, error: "bad_status" });
       await redis(["HSET", KEY, g.name, JSON.stringify({ status, at: Date.now() })]);
-    } else if (req.method !== "GET") {
-      res.setHeader("Allow", "GET, POST");
-      return res.status(405).json({ ok: false, error: "method_not_allowed" });
+      return res.status(200).json({ ok: true, name: g.name, status });
     }
     const rows = await readAll();
-    const guests = GUESTS.map(([name, role]) => ({ name, role, status: rows[name] ? rows[name].status : null }));
+    const guests = GUESTS.map(([name, role]) => ({ name, role, status: rows[name] ? rows[name].status : null, at: rows[name] ? rows[name].at : null }));
     return res.status(200).json({ ok: true, guests });
   } catch (e) {
     return res.status(502).json({ ok: false, error: "storage_error" });

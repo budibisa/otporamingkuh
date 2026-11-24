@@ -166,29 +166,26 @@ p.lead{color:var(--muted);line-height:1.8;font-size:15px}
 .rsvp-done{display:none;margin-top:18px;color:var(--gold2);font-size:14px}
 .btn.chosen{box-shadow:0 0 0 2px var(--gold2),0 0 24px rgba(214,177,106,.45)}
 
-/* roster */
-.tally{display:flex;justify-content:center;gap:6px;margin:-4px 0 18px;flex-wrap:wrap}
-.tally span{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:5px 10px;white-space:nowrap}
-.tally b{color:var(--gold2);font-weight:700}
-.roster{text-align:left;display:grid;gap:22px}
-.grp[hidden]{display:none}
-.gh{display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:12px}
-.gh b{margin-left:auto;font:700 16px Cinzel,serif;color:var(--gold2);letter-spacing:0}
-.dot{width:8px;height:8px;border-radius:50%}
-.dot.yes{background:var(--gold);box-shadow:0 0 10px var(--gold)}
-.dot.no{background:#6b7189}
-.dot.pending{border:1px dashed var(--gold)}
-.bubbles{display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:14px 8px}
-.bub{display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:0;color:inherit;cursor:pointer;font:inherit;padding:0}
-.bub i{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;font:700 15px Cinzel,serif;font-style:normal;letter-spacing:.02em;position:relative;transition:transform .2s}
-.bub.yes i{background:linear-gradient(160deg,var(--gold2),var(--gold) 55%,var(--gold3));color:var(--black);box-shadow:0 4px 18px rgba(214,177,106,.35)}
-.bub.no i{background:rgba(255,255,255,.04);border:1px solid rgba(167,173,192,.35);color:#8a90a6}
-.bub.pending i{border:1px dashed var(--line);color:var(--gold);background:rgba(214,177,106,.04)}
-.bub.me i:after{content:"";position:absolute;inset:-5px;border-radius:50%;border:1px solid var(--gold2)}
-.bub small{font-size:10px;color:var(--muted);max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center}
-.bub.open small{white-space:normal;color:var(--ink)}
-.bub.pop i{animation:pop .6s ease}
-@keyframes pop{40%{transform:scale(1.18)}}
+/* confirmation modal */
+.confirm-badge{display:none;margin:14px auto 0;padding:8px 14px;border-radius:999px;border:1px solid var(--line);font-size:12px;color:var(--gold2);width:max-content;max-width:100%}
+.confirm-badge.show{display:block}
+#cfm{position:fixed;inset:0;z-index:60;display:none;place-items:center;padding:16px;background:rgba(3,4,8,.72);backdrop-filter:blur(6px)}
+#cfm.show{display:grid;animation:fade .3s ease}
+@keyframes fade{from{opacity:0}}
+#cfm .box{width:100%;max-width:360px;text-align:center;border:1px solid var(--line);border-radius:24px;padding:30px 22px 24px;
+  background:linear-gradient(180deg,#13204a,#070a14);box-shadow:0 30px 80px rgba(0,0,0,.6);animation:rise .45s cubic-bezier(.2,.8,.2,1)}
+@keyframes rise{from{transform:translateY(24px) scale(.96);opacity:0}}
+#cfm .tick{width:74px;height:74px;margin:0 auto 14px;border-radius:50%;display:grid;place-items:center;
+  background:linear-gradient(160deg,var(--gold2),var(--gold) 55%,var(--gold3));box-shadow:0 0 0 6px rgba(214,177,106,.15),0 10px 30px rgba(214,177,106,.35)}
+#cfm .tick svg{width:36px;height:36px;stroke:var(--black);stroke-width:3;fill:none;stroke-dasharray:40;stroke-dashoffset:40;animation:tick .5s .25s ease forwards}
+#cfm.no .tick{background:rgba(255,255,255,.06);box-shadow:0 0 0 6px rgba(255,255,255,.04)}
+#cfm.no .tick svg{stroke:var(--gold2)}
+@keyframes tick{to{stroke-dashoffset:0}}
+#cfm h3{font:700 24px Cinzel,serif;margin-bottom:6px}
+#cfm p{color:var(--muted);font-size:14px;line-height:1.65}
+#cfm .who{color:var(--gold2);font-weight:600}
+#cfm .meta{margin-top:14px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)}
+#cfm .btn{margin-top:20px}
 
 /* closing */
 .closing .guest{font-size:clamp(26px,8vw,40px)}
@@ -257,6 +254,17 @@ footer .logos .l1{width:56px} footer .logos .l2{width:74px} footer .logos .l3{wi
       <i class="ring"></i><i class="ring"></i>
       <i class="disc"><span>OPEN</span></i>
     </button>
+  </div>
+</div>
+
+<div id="cfm" role="dialog" aria-modal="true" aria-labelledby="cfmTitle">
+  <div class="box">
+    <div class="tick"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+    <h3 class="goldtext" id="cfmTitle">Booking Confirmed!</h3>
+    <p id="cfmText"></p>
+    <div class="meta" id="cfmMeta"></div>
+    <p class="note" id="cfmNote" style="margin-top:8px;font-size:12px"></p>
+    <button class="btn solid" id="cfmClose">Oke, sampai jumpa!</button>
   </div>
 </div>
 
@@ -333,22 +341,11 @@ footer .logos .l1{width:56px} footer .logos .l2{width:74px} footer .logos .l3{wi
         <a class="btn solid" id="yes" target="_blank" rel="noopener">I'm in! 🏃</a>
         <a class="btn" id="no" target="_blank" rel="noopener">Can't make it</a>
       </div>
-      <div class="rsvp-done" id="done">Terima kasih! Pesan WhatsApp sudah disiapkan untuk dikirim ke panitia.</div>
+      <div class="confirm-badge" id="cfmBadge"></div>
       <p class="note" style="margin-top:16px">More Info: <a id="rsvpPhone" style="color:var(--gold2)"></a> (<span id="rsvpName"></span>)</p>
     </div>
   </section>
 
-  <section class="wrap reveal" id="rosterWrap" hidden>
-    <div class="eyebrow">Start List</div>
-    <h2 class="goldtext">Rangers Check-in</h2>
-    <div class="tally" id="tally"></div>
-    <div class="card roster">
-      <div class="grp" data-g="yes"><div class="gh"><span class="dot yes"></span>Hadir <b id="n-yes">0</b></div><div class="bubbles" id="g-yes"></div></div>
-      <div class="grp" data-g="no"><div class="gh"><span class="dot no"></span>Berhalangan <b id="n-no">0</b></div><div class="bubbles" id="g-no"></div></div>
-      <div class="grp" data-g="pending"><div class="gh"><span class="dot pending"></span>Belum konfirmasi <b id="n-pending">0</b></div><div class="bubbles" id="g-pending"></div></div>
-    </div>
-    <p class="note" style="margin-top:12px">Ketuk lingkaran untuk melihat nama. Daftar diperbarui otomatis.</p>
-  </section>
 
   <section class="wrap reveal closing">
     <svg class="flourish" viewBox="0 0 120 24" aria-hidden="true"><path d="M2 12c18 0 22-9 34-9s14 18 24 18 12-18 24-18 16 9 34 9" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
@@ -481,73 +478,46 @@ function updRsvp() {
   $("yes").href = `https://wa.me/${waNum}?text=${encodeURIComponent(`Halo ${CONFIG.rsvpName}, saya ${guest} akan HADIR di ${evTitle} (29 Nov 2026, ${CONFIG.venue}). Ora Mingkuh! 🏃`)}`;
   $("no").href  = `https://wa.me/${waNum}?text=${encodeURIComponent(`Halo ${CONFIG.rsvpName}, saya ${guest} mohon maaf BERHALANGAN hadir di ${evTitle}. Selamat untuk semua Rangers!`)}`;
 }
-["yes", "no"].forEach(id => $(id).addEventListener("click", () => $("done").style.display = "block"));
 updRsvp();
 
-// ===== Roster: who's coming (needs /api/rsvp + storage on Vercel) =====
+// ===== RSVP: record answer (see /admin) and show confirmation =====
 const API = "/api/rsvp";
-const STORE = "otp-rsvp-choice";
-const initials = n => {
-  const w = n.split(/\s+/).filter(x => /^[A-Za-zÀ-ÿ]/.test(x) && !/\./.test(x));
-  return ((w[0] || "")[0] + (w.length > 1 ? w[1][0] : (w[0] || "")[1] || "")).toUpperCase();
-};
-const firstName = n => n.split(/\s+/)[0];
-let roster = null, lastMine = null;
-try { lastMine = localStorage.getItem(STORE + ":" + nm); } catch (e) {}
-
-function renderRoster(guests) {
-  roster = guests;
-  const groups = {yes: [], no: [], pending: []};
-  guests.forEach(g => groups[g.status || "pending"].push(g));
-  for (const k of Object.keys(groups)) {
-    $("n-" + k).textContent = groups[k].length;
-    $("g-" + k).innerHTML = groups[k].map(g => {
-      const me = nm && g.name.toLowerCase() === nm.toLowerCase();
-      return `<button class="bub ${k}${me ? " me" : ""}" title="${esc(g.name)} · ${esc(g.role)}" aria-label="${esc(g.name)}, ${esc(g.role)}"><i>${esc(initials(g.name))}</i><small>${esc(firstName(g.name))}</small></button>`;
-    }).join("");
-    document.querySelector(`.grp[data-g="${k}"]`).hidden = !groups[k].length;
-  }
-  $("tally").innerHTML = `<span><b>${groups.yes.length}</b> hadir</span><span><b>${groups.no.length}</b> berhalangan</span><span><b>${guests.length}</b> diundang</span>`;
-  $("rosterWrap").hidden = false;
-  if (!$("rosterWrap").classList.contains("in")) io.observe($("rosterWrap"));
-}
-document.addEventListener("click", e => {
-  const b = e.target.closest(".bub"); if (!b) return;
-  const wasOpen = b.classList.contains("open");
-  document.querySelectorAll(".bub.open").forEach(x => { x.classList.remove("open"); x.querySelector("small").textContent = firstName(x.title.split(" · ")[0]); });
-  if (!wasOpen) { b.classList.add("open"); b.querySelector("small").textContent = b.title.split(" · ")[0]; }
-});
-
-async function loadRoster() {
-  try {
-    const r = await fetch(API, {cache: "no-store"});
-    const j = await r.json();
-    if (j.ok && Array.isArray(j.guests)) renderRoster(j.guests);
-  } catch (e) { /* API not available (e.g. opened as a local file): keep roster hidden */ }
-}
+const STORE = "otp-rsvp-choice:" + nm.toLowerCase();
 function markChoice(status) {
   ["yes", "no"].forEach(id => $(id).classList.toggle("chosen", id === status));
+  const badge = $("cfmBadge");
+  badge.textContent = status === "yes" ? "✓ Kehadiran Anda sudah dikonfirmasi" : "Anda tercatat berhalangan hadir";
+  badge.classList.add("show");
+}
+function showConfirm(status, saved) {
+  const m = $("cfm");
+  m.classList.toggle("no", status === "no");
+  $("cfmTitle").textContent = status === "yes" ? "Booking Confirmed!" : "Terima Kasih";
+  $("cfmText").innerHTML = status === "yes"
+    ? `Kehadiran <span class="who">${esc(guest)}</span> sudah kami konfirmasi. Sampai jumpa di garis finish!`
+    : `Konfirmasi berhalangan dari <span class="who">${esc(guest)}</span> sudah kami terima. Selamat untuk semua Rangers!`;
+  $("cfmMeta").textContent = status === "yes" ? "Minggu, 29 Nov 2026 · 15.00 WIB · Gaia Cosmo Hotel" : "";
+  $("cfmNote").textContent = saved ? "" : "Konfirmasi juga dikirim lewat WhatsApp ke panitia.";
+  m.classList.add("show");
+  if (status === "yes") confetti();
 }
 async function sendRsvp(status) {
   markChoice(status);
-  try { localStorage.setItem(STORE + ":" + nm, status); } catch (e) {}
-  if (roster) {
-    renderRoster(roster.map(g => g.name.toLowerCase() === nm.toLowerCase() ? {...g, status} : g));
-    const mine = document.querySelector(".bub.me"); if (mine) mine.classList.add("pop");
-  }
+  try { localStorage.setItem(STORE, status); } catch (e) {}
+  let saved = false;
   try {
     const r = await fetch(API, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({name: nm, status}), keepalive: true});
-    const j = await r.json();
-    if (j.ok) renderRoster(j.guests);
+    saved = (await r.json()).ok === true;
   } catch (e) {}
+  showConfirm(status, saved);
 }
 if (nm) {
   $("yes").addEventListener("click", () => sendRsvp("yes"));
   $("no").addEventListener("click", () => sendRsvp("no"));
-  if (lastMine) markChoice(lastMine);
+  try { const prev = localStorage.getItem(STORE); if (prev) markChoice(prev); } catch (e) {}
 }
-loadRoster();
-setInterval(() => { if (!document.hidden) loadRoster(); }, 30000);
+$("cfmClose").onclick = () => $("cfm").classList.remove("show");
+$("cfm").addEventListener("click", e => { if (e.target.id === "cfm") $("cfm").classList.remove("show"); });
 
 // wave lines
 (() => {
