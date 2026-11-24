@@ -352,7 +352,7 @@ const CONFIG = {
   maxGuests: 2,
   rsvpName: "Budi S",
   rsvpPhone: "08121555154",
-  music: ""        // opsional: link file .mp3, contoh "assets/song.mp3"
+  music: "assets/ora-mingkuh-theme.mp3"   // musik instrumental orisinal; ganti dengan file .mp3 lain bila perlu
 };
 /* ============================================================ */
 
@@ -437,7 +437,7 @@ updRsvp();
 
 // music
 let audio = null;
-if (CONFIG.music) { audio = new Audio(CONFIG.music); audio.loop = true; }
+if (CONFIG.music) { audio = new Audio(CONFIG.music); audio.loop = true; audio.preload = "auto"; audio.volume = 0.7; }
 $("music").onclick = () => { if (!audio) return; audio.paused ? audio.play() : audio.pause(); $("music").classList.toggle("on", !audio.paused); };
 
 // open cover
