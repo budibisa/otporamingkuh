@@ -150,6 +150,8 @@ p.lead{color:var(--muted);line-height:1.8;font-size:15px}
 
 /* closing */
 .closing .guest{font-size:clamp(26px,8vw,40px)}
+.role{display:inline-block;margin-top:6px;padding:5px 14px;border:1px solid var(--line);border-radius:999px;font-size:10.5px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--gold2);background:rgba(214,177,106,.07)}
+.role:empty{display:none}
 footer{position:relative;z-index:1;text-align:center;padding:30px 16px calc(40px + env(safe-area-inset-bottom));color:var(--muted);font-size:11px;letter-spacing:.15em}
 footer .logos{margin-bottom:18px;opacity:.85}
 footer .logos .l1{width:56px} footer .logos .l2{width:74px} footer .logos .l3{width:70px}
@@ -185,6 +187,7 @@ footer .logos .l1{width:56px} footer .logos .l2{width:74px} footer .logos .l3{wi
 
   <div class="hello cinzel">HELLO,</div>
   <div class="guest cinzel goldtext" id="guestCover">Rangers</div>
+  <div><span class="role" id="roleCover"></span></div>
   <div class="invited">You're invited to</div>
   <div class="title cinzel goldtext"><small>Graduation Ceremony</small>OTP “Ora Mingkuh” 2026</div>
   <div class="tagline script">The Hearts Behind Every Journey</div>
@@ -221,6 +224,7 @@ footer .logos .l1{width:56px} footer .logos .l2{width:74px} footer .logos .l3{wi
   <section class="wrap reveal">
     <div class="hello cinzel">Dear,</div>
     <div class="guest cinzel goldtext" id="guestMain">Rangers</div>
+    <div><span class="role" id="roleMain"></span></div>
     <div class="divider">✦</div>
     <p class="lead" id="greeting"></p>
   </section>
@@ -362,6 +366,8 @@ const waNum = CONFIG.rsvpPhone.replace(/\D/g, "").replace(/^0/, "62");
 
 document.title = nm ? `Undangan untuk ${guest} · OTP Ora Mingkuh 2026` : document.title;
 ["guestCover", "guestMain", "guestEnd"].forEach(id => $(id).textContent = guest);
+const role = (q.get("r") || "").trim().slice(0, 40);
+["roleCover", "roleMain"].forEach(id => $(id).textContent = role);
 $("greeting").innerHTML = esc(CONFIG.greeting).replace("{name}", `<b style="color:var(--gold2)">${esc(guest)}</b>`);
 
 // marquee
