@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
-<title>Admin · Konfirmasi Kehadiran OTP</title>
+<title>Kehadiran · OTP Ora Mingkuh 2026</title>
 <meta name="theme-color" content="#070a14">
 <link rel="icon" href="/assets/logo-otp.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,8 +27,7 @@ h1{font:700 clamp(20px,5.5vw,28px) Cinzel,serif;line-height:1.15}
   background:rgba(214,177,106,.08);color:var(--gold2);font:600 12px Montserrat,sans-serif;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
 .btn.solid{background:linear-gradient(180deg,var(--gold2),var(--gold));color:var(--black)}
 input{width:100%;padding:14px;border-radius:12px;border:1px solid var(--line);background:rgba(0,0,0,.35);color:var(--ink);font:16px Montserrat,sans-serif;letter-spacing:.2em;text-align:center}
-#login{max-width:340px;margin:12vh auto 0;text-align:center;display:grid;gap:14px}
-#login p{color:var(--muted);font-size:13px}
+#login{margin-top:8vh}
 .err{color:#ff9b9b;font-size:13px;min-height:18px}
 #dash[hidden],#login[hidden]{display:none}
 
@@ -79,16 +78,10 @@ h2{font:700 18px Cinzel,serif;margin:26px 0 12px}
 <div class="wrap">
   <header>
     <img src="/assets/logo-otp.png" alt="OTP">
-    <div><div class="eyebrow">Panitia · Admin</div><h1 class="goldtext">Konfirmasi Kehadiran</h1></div>
+    <div><div class="eyebrow">OTP Ora Mingkuh 2026</div><h1 class="goldtext">Konfirmasi Kehadiran</h1></div>
   </header>
 
-  <form id="login" hidden>
-    <div class="eyebrow">Masuk Admin</div>
-    <p>Masukkan PIN admin untuk melihat daftar konfirmasi.</p>
-    <input id="pin" type="password" inputmode="numeric" autocomplete="current-password" placeholder="PIN" required>
-    <div class="err" id="err"></div>
-    <button class="btn solid" type="submit">Lihat Daftar</button>
-  </form>
+  <div id="login" class="card" style="text-align:center"><p class="err" id="err" style="color:var(--muted)">Memuat data…</p></div>
 
   <section id="dash" hidden>
     <div class="stats">
@@ -124,9 +117,7 @@ h2{font:700 18px Cinzel,serif;margin:26px 0 12px}
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const KEY = "otp-admin-pin";
 const LABEL = {yes: "Hadir", no: "Berhalangan", pending: "Belum"};
-let pin = ""; try { pin = sessionStorage.getItem(KEY) || ""; } catch (e) {}
 let data = [], filter = "all";
 
 const initials = n => {
@@ -135,25 +126,21 @@ const initials = n => {
 };
 const fmt = t => t ? new Date(t).toLocaleString("id-ID", {day:"numeric", month:"short", hour:"2-digit", minute:"2-digit", timeZone:"Asia/Jakarta"}) : "—";
 
-async function load(showErr) {
+async function load() {
   try {
-    const r = await fetch("/api/rsvp", {headers: {"x-admin-pin": pin}, cache: "no-store"});
+    const r = await fetch("/api/rsvp", {cache: "no-store"});
     const j = await r.json().catch(() => ({}));
-    if (r.status === 401) { logout(showErr ? "PIN salah." : ""); return; }
     if (!j.ok) {
-      const msg = {admin_pin_not_configured: "ADMIN_PIN belum diatur di Vercel (Settings → Environment Variables).",
-                   storage_not_configured: "Database belum ditambahkan di Vercel (Storage → Upstash for Redis).",
+      const msg = {storage_not_configured: "Database belum ditambahkan di Vercel (Storage → Upstash for Redis), lalu Redeploy.",
                    storage_error: "Database tidak bisa dihubungi. Coba lagi sebentar."}[j.error] || "Gagal memuat data.";
       logout(msg); return;
     }
     data = j.guests; render();
     $("login").hidden = true; $("dash").hidden = false;
-    try { sessionStorage.setItem(KEY, pin); } catch (e) {}
   } catch (e) { logout("Tidak bisa terhubung ke server."); }
 }
 function logout(msg) {
   $("dash").hidden = true; $("login").hidden = false; $("err").textContent = msg || "";
-  try { sessionStorage.removeItem(KEY); } catch (e) {}
 }
 function render() {
   const st = g => g.status || "pending";
@@ -173,7 +160,6 @@ function render() {
   $("rows").innerHTML = rows.map(g => `<tr><td>${esc(g.name)}<span class="r">${esc(g.role)}</span></td><td><span class="pill ${st(g)}">${LABEL[st(g)]}</span></td><td class="t">${fmt(g.at)}</td></tr>`).join("");
   $("upd").textContent = "Diperbarui " + new Date().toLocaleTimeString("id-ID", {hour:"2-digit", minute:"2-digit"});
 }
-$("login").addEventListener("submit", e => { e.preventDefault(); pin = $("pin").value.trim(); load(true); });
 $("refresh").onclick = () => load();
 $("tabs").addEventListener("click", e => { const t = e.target.closest(".tab"); if (!t) return;
   filter = t.dataset.f; document.querySelectorAll(".tab").forEach(x => x.classList.toggle("on", x === t)); render(); });
@@ -182,8 +168,8 @@ $("copy").onclick = () => {
   const txt = `REKAP KEHADIRAN — Graduation Ceremony OTP Ora Mingkuh 2026\n\nHADIR (${data.filter(g => g.status === "yes").length}):\n${by("yes")}\n\nBERHALANGAN (${data.filter(g => g.status === "no").length}):\n${by("no")}\n\nBELUM KONFIRMASI (${data.filter(g => !g.status).length}):\n${by("pending")}`;
   navigator.clipboard?.writeText(txt).then(() => { $("copy").textContent = "Tersalin ✓"; setTimeout(() => $("copy").textContent = "Salin Rekap", 1500); });
 };
-if (pin) load(); else $("login").hidden = false;
-setInterval(() => { if (pin && !document.hidden && !$("dash").hidden) load(); }, 30000);
+load();
+setInterval(() => { if (!document.hidden) load(); }, 30000);
 </script>
 </body>
 </html>
