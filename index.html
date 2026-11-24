@@ -46,9 +46,9 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:0}
 body:not(.opened) main,body:not(.opened) footer{visibility:hidden}
 
 /* ===== COVER ===== */
-#cover{position:fixed;top:0;left:0;right:0;height:100vh;height:100lvh;min-height:100%;z-index:30;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:space-evenly;
-  --band:clamp(56px,11vh,96px);--band-b:clamp(90px,17vh,160px);
-  padding:calc(var(--band) + 1vh + env(safe-area-inset-top)) 16px calc(var(--band-b) + 1vh + env(safe-area-inset-bottom));text-align:center;
+#cover{position:fixed;top:0;left:0;right:0;height:100vh;height:100lvh;min-height:100%;z-index:30;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:space-between;
+  --band:clamp(56px,11vh,96px);--band-b:clamp(80px,14vh,140px);
+  padding:calc(var(--band) + 1.5vh + env(safe-area-inset-top)) 16px calc(var(--band-b) + .5vh + env(safe-area-inset-bottom));text-align:center;
   background:radial-gradient(ellipse 120% 80% at 50% 30%,#152454 0%,#0a1128 50%,#05060b 100%);
   transition:transform 1.2s cubic-bezier(.75,0,.2,1)}
 #cover.open{transform:translateY(-105%)}
@@ -79,9 +79,11 @@ body:not(.opened) main,body:not(.opened) footer{visibility:hidden}
   font:800 13px Cinzel,serif;letter-spacing:.06em;box-shadow:inset 0 0 0 1px var(--gold)}
 #cover .cv-top,#cover .cv-mid,#cover .cv-bot{display:flex;flex-direction:column;align-items:center;width:100%}
 #cover .logos{margin-bottom:0}
-#cover .flourish{margin:16px auto 0}
-#cover .guest{margin:10px 0 8px}
-#cover .invited{margin-top:16px}
+#cover .flourish{display:none}
+#cover .guest{margin:1.4vh 0 1.2vh}
+#cover .invited{margin-top:2.6vh}
+#cover .title{margin-top:1.4vh}
+#cover .tagline{margin-top:1.2vh}
 #cover .medal{margin-top:0}
 @keyframes blink{50%{opacity:.45}}
 
@@ -195,8 +197,6 @@ footer .logos .l1{width:56px} footer .logos .l2{width:74px} footer .logos .l3{wi
 @media (max-height:720px){
   #cover{--band:clamp(44px,8vh,58px);--band-b:clamp(70px,13vh,96px)}
   #cover .flourish{display:none}
-  #cover .guest{margin:6px 0 6px}
-  #cover .invited{margin-top:10px}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.waves path{stroke-dashoffset:0}}
 </style>
