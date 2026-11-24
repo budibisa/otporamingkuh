@@ -36,14 +36,16 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:0}
 /* flowing gold lines */
 .waves{position:absolute;pointer-events:none;color:var(--gold);opacity:.75}
 .waves path{fill:none;stroke:currentColor;stroke-width:1}
-.waves.tr{top:-20px;right:-60px;width:260px;transform:rotate(8deg)}
-.waves.bl{bottom:-30px;left:-70px;width:240px;transform:scaleX(-1) rotate(165deg)}
+.waves{width:82%;height:var(--band)}
+.waves.tr{top:0;right:0;-webkit-mask-image:linear-gradient(to left,#000 45%,transparent);mask-image:linear-gradient(to left,#000 45%,transparent)}
+.waves.bl{bottom:0;left:0;transform:rotate(180deg);-webkit-mask-image:linear-gradient(to left,#000 45%,transparent);mask-image:linear-gradient(to left,#000 45%,transparent)}
 .waves path{stroke-dasharray:900;stroke-dashoffset:900;animation:draw 4s ease forwards}
 @keyframes draw{to{stroke-dashoffset:0}}
 
 /* ===== COVER ===== */
 #cover{position:fixed;inset:0;z-index:30;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:28px 16px calc(28px + env(safe-area-inset-bottom));text-align:center;
+  --band:clamp(56px,11vh,96px);
+  padding:calc(var(--band) + 8px + env(safe-area-inset-top)) 16px calc(var(--band) + 8px + env(safe-area-inset-bottom));text-align:center;
   background:radial-gradient(ellipse 120% 80% at 50% 30%,#152454 0%,#0a1128 50%,#05060b 100%);
   transition:transform 1.2s cubic-bezier(.75,0,.2,1)}
 #cover.open{transform:translateY(-105%)}
@@ -167,6 +169,28 @@ footer .logos .l1{width:56px} footer .logos .l2{width:74px} footer .logos .l3{wi
 .gen input,.gen select{width:100%;padding:13px 14px;border-radius:12px;border:1px solid var(--line);background:rgba(0,0,0,.35);color:var(--ink);font:15px Montserrat,sans-serif}
 .gen .out{word-break:break-all;font-size:13px;color:var(--gold2);padding:12px;border:1px dashed var(--line);border-radius:12px}
 
+/* compact cover on short screens so content never reaches the gold bands */
+@media (max-height:780px){
+  #cover .logos{margin-bottom:12px}
+  #cover .logos .l1{width:54px} #cover .logos .l2{width:74px} #cover .logos .l3{width:68px}
+  #cover .flourish{margin:0 auto 8px;width:96px}
+  #cover .hello{font-size:13px}
+  #cover .guest{font-size:clamp(22px,6.8vw,34px);margin:4px 0 2px}
+  #cover .invited{margin-top:4px;font-size:12px}
+  #cover .title{font-size:clamp(24px,7.2vw,40px);margin-top:8px}
+  #cover .tagline{font-size:clamp(22px,6.4vw,30px);margin-top:2px}
+  #cover .medal{width:88px;height:88px;margin-top:12px}
+  #cover .medal .disc{inset:8px}
+  #cover .medal .disc span{width:46px;height:46px;font-size:11px}
+  #cover .tap{margin-top:8px}
+}
+@media (max-height:640px){
+  #cover .logos .l1{width:44px} #cover .logos .l2{width:60px} #cover .logos .l3{width:56px}
+  #cover .flourish{display:none}
+  #cover .title{font-size:clamp(22px,6.5vw,32px)}
+  #cover .tagline{font-size:22px}
+  #cover .medal{width:76px;height:76px}
+}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.waves path{stroke-dashoffset:0}}
 </style>
 </head>
@@ -175,8 +199,8 @@ footer .logos .l1{width:56px} footer .logos .l2{width:74px} footer .logos .l3{wi
 
 <!-- ============ COVER ============ -->
 <div id="cover">
-  <svg class="waves tr" viewBox="0 0 260 340" aria-hidden="true"><g id="wv"></g></svg>
-  <svg class="waves bl" viewBox="0 0 260 340" aria-hidden="true"><use href="#wv"/></svg>
+  <svg class="waves tr" viewBox="0 0 400 100" preserveAspectRatio="none" aria-hidden="true"><g id="wv"></g></svg>
+  <svg class="waves bl" viewBox="0 0 400 100" preserveAspectRatio="none" aria-hidden="true"><use href="#wv"/></svg>
 
   <div class="logos">
     <img class="l1" src="assets/logo-runiversity.png" alt="Indorunners Runiversity">
@@ -415,9 +439,10 @@ updRsvp();
 // wave lines
 (() => {
   let d = "";
-  for (let i = 0; i < 16; i++) {
-    const o = i * 7;
-    d += `<path fill="none" stroke="currentColor" stroke-width="1" d="M${10 + o} 0 C ${60 + o} 80, ${-10 + o} 150, ${90 + o} 220 S ${200 + o} 300, ${150 + o * 1.2} 340" style="animation-delay:${i * 0.08}s"/>`;
+  // flowing lines kept inside a band along the screen edge (viewBox 400x100)
+  for (let i = 0; i < 14; i++) {
+    const y = 6 + i * 5.2;
+    d += `<path fill="none" stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke" d="M402 ${y} C 330 ${y + 22}, 260 ${y - 14}, 190 ${y * 0.6 + 6} S 70 ${2 + i * 1.2}, -2 ${1 + i * 0.6}" style="animation-delay:${i * 0.08}s"/>`;
   }
   $("wv").innerHTML = d;
 })();
